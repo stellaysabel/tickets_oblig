@@ -5,11 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@RestController
+@RestController //Annotates the class as a REST controller. Handling incoming HTTPS requests and generating appropriate respinses.
 public class TicketController {
 
-    @Autowired
-    TicketRepository rep;
+    @Autowired // Annotates the 'TicketRepository' field for autoatic dependency injection
+    TicketRepository rep; // instance of 'TicketRepository' by Spring
 
     @PostMapping("/tickets")
     public void addTickets(@RequestBody Ticket ticket) {
@@ -21,8 +21,8 @@ public class TicketController {
         return rep.fetchTickets();
     }
 
-    @DeleteMapping("/tickets")
-    public void deleteTicket() {
-        rep.deleteTicket();
+    @DeleteMapping("/tickets/{id}")
+    public void deleteTicket(@PathVariable int id) {
+        rep.deleteTicket(id);
     }
 }

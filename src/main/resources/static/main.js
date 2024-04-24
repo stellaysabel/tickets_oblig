@@ -3,7 +3,7 @@ let tickets = [];
 // Define the validateEmail function
 function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return emailRegex.test(email); //method returns 'true' if the email matches the pattern and 'false' otherwise
 }
 
 // Define the validatePhoneNumber function
@@ -12,7 +12,7 @@ function validatePhoneNumber(phone) {
     return phoneRegex.test(phone);
 }
 function addTicket() {
-    // fetch the values from HTML form
+    // fetch the values from HTML form/fiels
     let selectedMovie = document.getElementById("movies").value;
     let selectedAmount = document.getElementById("amount").value;
     let selectFirstName = document.getElementById("firstname").value;
@@ -20,7 +20,7 @@ function addTicket() {
     let selectedEmail = document.getElementById("email").value;
     let selectedPhoneNumber = document.getElementById("phonenumber").value;
 
-    // put the values into "ticket" object
+    // put the values into the constructed "ticket" object
     const ticket = {
         movie: selectedMovie,
         amount: selectedAmount,
@@ -100,12 +100,10 @@ function addTicket() {
     }
     // Continue if no errors with validation
 
-    // pushes the "ticket" object to the array "tickets".
+    // oblig 2: pushes the "ticket" object to the array "tickets".
    //  tickets.push(ticket);
 
-    displayTickets(); // Call the function to display tickets
-
-    // resets
+    // resets the form to clear for next booking
     document.getElementById("movies").value = "";
     document.getElementById("amount").value = "";
     document.getElementById("firstname").value = "";
@@ -113,6 +111,8 @@ function addTicket() {
     document.getElementById("phonenumber").value = "";
     document.getElementById("email").value = "";
 
+
+    //if validation passes, it sends an ajax POST request to the server's '/tickets' endpoint with the ticket data
     $.ajax({
         type : 'POST',
         url : "/tickets",
@@ -120,6 +120,7 @@ function addTicket() {
         contentType: 'application/json',
         success : function(result, status, xhr){
             console.log(result);
+            displayTickets(); // Call the function to display tickets
         },
         error : function(xhr, status, error) {
             console.log(xhr.responseText);
@@ -128,30 +129,57 @@ function addTicket() {
 
 }
 
-function buyTickets() {
+function displayTickets() {
 
+    // sends ajax GET to fetch the ticket data
     $.ajax({
-        type : 'POST',
+        type : 'GET',
         url : "/tickets",
-        data : tickets,
-        success : function(result, status, xhr){
-            console.log(result);
+        contentType: 'application/json',
+        success : function(tickets, status, xhr){
+
+            //HTML table to display the details
+            let output = "<table class='table'>";
+            output += "<thead><tr><th>Movie</th><th>Amount</th><th>Name</th><th>Phonenumber</th><th>E-mail</th><th></th></tr></thead>";
+            for (let i = 0; i < tickets.length; i++) {
+                output += "<tr>";
+                output += "<td>" + tickets[i].movie + "</td>";
+                output += "<td>" + tickets[i].amount + "</td>";
+                output += "<td>" + tickets[i].firstName + " " + tickets[i].lastName + "</td>";
+                output += "<td>" + tickets[i].phoneNumber + "</td>";
+                output += "<td>" + tickets[i].email + "</td>";
+                output += "<td><a href='#' class='deleteTicket' data-id='"+ tickets[i].id +"'>Delete</a></td>";
+                output += "</tr>";
+            }
+            output += "</table>"
+            document.getElementById("output").innerHTML = output;
+
+        },
+        error : function(xhr, status, error) {
+            console.log(xhr.responseText);
         }
     });
 
 }
 
-function displayTickets() {
-    let output = "";
-    for (let i = 0; i < tickets.length; i++) {
-        output+= tickets[i].movie + " " + tickets[i].amount + " " + tickets[i].firstName +
-            " " + tickets[i].lastName + " " + tickets[i].phoneNumber + " " + tickets[i].email;
-    }
-    document.getElementById("output").innerHTML = output;
-}
+// ajax DELETE to '/tickets/{id}' endpount, where {id} represents the ID of the ticket to be deleted
+$('#output').on('click', '.deleteTicket',function(){
+    let id = $(this).attr('data-id')
+    $.ajax({
+        type : 'DELETE',
+        url : "/tickets/" + id,
+        contentType: 'application/json',
+        success : function(result, status, xhr){
+            console.log(result);
+            displayTickets();
+        },
+        error : function(xhr, status, error) {
+            console.log(xhr.responseText);
+        }
+    });
 
-function deleteTicket() {
-    tickets = [];
-    console.log(tickets);
-    displayTickets();
-}
+});
+
+displayTickets(); // On page load, ensuring that any existing tickets are initially displayed to user
+
+
