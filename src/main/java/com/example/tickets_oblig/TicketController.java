@@ -1,8 +1,8 @@
 package com.example.tickets_oblig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+/* import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity; */
 
 import java.util.List;
 @RestController //Annotates the class as a REST controller. Handling incoming HTTPS requests and generating appropriate respinses.
